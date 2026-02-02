@@ -5,9 +5,29 @@ const https = require("https");
 const { execFileSync } = require("child_process");
 
 const ANSI_RE = /\x1b\[[0-9;]*m/g;
+const ANSI_RESET = "\x1b[0m";
+const ANSI_BOLD = "\x1b[1m";
+const ANSI_BLUE = "\x1b[34m";
+const ANSI_GRAY = "\x1b[90m";
 
 function stripAnsi(text) {
   return text.replace(ANSI_RE, "");
+}
+
+function style(text, ansi) {
+  return `${ansi}${text}${ANSI_RESET}`;
+}
+
+function formatName(text) {
+  return style(text, ANSI_BOLD);
+}
+
+function formatUrl(text) {
+  return style(text, ANSI_BLUE);
+}
+
+function formatDescription(text) {
+  return style(text, ANSI_GRAY);
 }
 
 function decodeHtml(text) {
@@ -217,9 +237,9 @@ async function main() {
 
   if (args.noFetch) {
     for (const [name, url] of limited) {
-      console.log(name);
-      console.log(`└ ${url}`);
-      console.log("[description skipped]");
+      console.log(formatName(name));
+      console.log(`└ ${formatUrl(url)}`);
+      console.log(formatDescription("[description skipped]"));
       console.log("");
     }
     return;
@@ -251,9 +271,9 @@ async function main() {
 
   for (let i = 0; i < limited.length; i += 1) {
     const [name, url] = limited[i];
-    console.log(name);
-    console.log(`└ ${url}`);
-    console.log(descriptions[i]);
+    console.log(formatName(name));
+    console.log(`└ ${formatUrl(url)}`);
+    console.log(formatDescription(descriptions[i]));
     console.log("");
   }
 }
